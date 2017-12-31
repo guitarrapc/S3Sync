@@ -52,13 +52,13 @@ You can run with docker.
 Run with IAM Role is recommended.
 
 ```bash
-docker run --rm -v <YOUR_SYNC_DIR>:/app/sync/ -e S3Sync_BucketName=<YOUR_BUCKET_NAME> s3sync
+docker run --rm -v <YOUR_SYNC_DIR>:/app/sync/ -e S3Sync_BucketName=<YOUR_BUCKET_NAME> guitarrapc/s3sync
 ```
 
 Local run without IAM Role, use AWS Credentials.
 
 ```bash
-$ docker run --rm -v <YOUR_SYNC_DIR>:/app/sync/ -e S3Sync_BucketName=<YOUR_BUCKET_NAME> -e AWS_ACCESS_KEY_ID=<YOUR_ACCESS_KEY> -e AWS_SECRET_ACCESS_KEY=<YOUR_SECRET> s3sync
+$ docker run --rm -v <YOUR_SYNC_DIR>:/app/sync/ -e S3Sync_BucketName=<YOUR_BUCKET_NAME> -e AWS_ACCESS_KEY_ID=<YOUR_ACCESS_KEY> -e AWS_SECRET_ACCESS_KEY=<YOUR_SECRET> guitarrapc/s3sync
 ```
 
 ### Build s3sync within docker

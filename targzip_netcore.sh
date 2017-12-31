@@ -1,1 +1,4 @@
-tar zcvf ./source/S3Sync/obj/Docker/s3sync_netcore.tar.gz ./source/S3Sync/obj/Docker/*
+#!/bin/sh
+cd `dirname $0`
+cd source/S3Sync/obj/Docker/publish/
+tar zcvf ../s3sync_netcore.tar.gz *

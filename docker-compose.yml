@@ -3,6 +3,6 @@ version: '3'
 services:
   s3sync:
     image: guitarrapc/s3sync
-    build:
-      context: ./S3Sync
+    build: 
+      context: .
       dockerfile: Dockerfile

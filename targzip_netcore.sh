@@ -1,0 +1,1 @@
+tar zcvf ./source/S3Sync/obj/Docker/s3sync_netcore.tar.gz ./source/S3Sync/obj/Docker/*

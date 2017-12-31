@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!--<TargetFramework>netcoreapp2.0</TargetFramework>-->
+    <TargetFrameworks>netcoreapp2.0;net47</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Core" Version="3.3.21.6" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.16.2" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.10.11" />
+    <PackageReference Include="BenchmarkDotNet.Core" Version="0.10.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\S3Sync.Core\S3Sync.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="app.debug.setting">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="app.release.setting">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

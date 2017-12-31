@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.15
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "S3Sync.Core", "S3Sync.Core\S3Sync.Core.csproj", "{8024CC01-FC60-4427-A4C2-FFAAB016609A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "S3Sync.BenchmarkCore", "S3Sync.BenchmarkCore\S3Sync.BenchmarkCore.csproj", "{722F8FE8-6EAE-483F-AA53-14ED4742F488}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{7E5B2E7C-C960-4575-AAA2-F7CADD71FF84}"
+	ProjectSection(SolutionItems) = preProject
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "S3Sync", "S3Sync\S3Sync.csproj", "{88ABA00B-B833-44C5-AE3B-CC727738EEC4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{81E5430B-314C-4531-8BD6-D5311A18FC6E}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.ci.build.yml = docker-compose.ci.build.yml
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8024CC01-FC60-4427-A4C2-FFAAB016609A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8024CC01-FC60-4427-A4C2-FFAAB016609A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8024CC01-FC60-4427-A4C2-FFAAB016609A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8024CC01-FC60-4427-A4C2-FFAAB016609A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{722F8FE8-6EAE-483F-AA53-14ED4742F488}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{722F8FE8-6EAE-483F-AA53-14ED4742F488}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{722F8FE8-6EAE-483F-AA53-14ED4742F488}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{722F8FE8-6EAE-483F-AA53-14ED4742F488}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88ABA00B-B833-44C5-AE3B-CC727738EEC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88ABA00B-B833-44C5-AE3B-CC727738EEC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88ABA00B-B833-44C5-AE3B-CC727738EEC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88ABA00B-B833-44C5-AE3B-CC727738EEC4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B82EF28F-0C55-4660-8E07-32E14925AF8D}
+	EndGlobalSection
+EndGlobal

@@ -12,21 +12,7 @@ namespace S3Sync.Core
         public int Update { get; set; }
         public int Skip { get; set; }
         public int Remove { get; set; }
-
-        private int GetMax(string left, int right)
-        {
-            return Math.Max(left.Length, right.ToString().Length);
-        }
-
-        private string PaddingTitle(int max, int text)
-        {
-            return PaddingTitle(max, text.ToString());
-        }
-
-        private string PaddingTitle(int max, string text)
-        {
-            return string.Format($"{{0, {max}}}", text);
-        }
+        public bool DryRun { get; set; }
 
         /// <summary>
         /// Markdown Friendly Table format
@@ -34,34 +20,49 @@ namespace S3Sync.Core
         /// <returns></returns>
         public string ToMarkdown()
         {
-            var totalMax = GetMax(nameof(TotalCount), TotalCount);
-            var totalSeparator = new string('-', totalMax);
-            var totalTitle = PaddingTitle(totalMax, nameof(TotalCount));
-            var totalValue = PaddingTitle(totalMax, TotalCount);
+            var totalItem = new MarkDownTabkeItem(TotalCount, nameof(TotalCount));
+            var newItem = new MarkDownTabkeItem(New, nameof(New));
+            var updateItem = new MarkDownTabkeItem(Update, nameof(Update));
+            var skipItem = new MarkDownTabkeItem(Skip, nameof(Skip));
+            var removeItem = new MarkDownTabkeItem(Remove, nameof(Remove));
+            var isDryItem = new MarkDownTabkeItem(DryRun, nameof(DryRun));
 
-            var newMax = GetMax(nameof(New), New);
-            var newSeparator = new string('-', newMax);
-            var newTitle = PaddingTitle(newMax, nameof(New));
-            var newValue = PaddingTitle(newMax, New);
+            return $@"| {totalItem.Title}  | {newItem.Title}  | {updateItem.Title}  | {skipItem.Title}  | {removeItem.Title}  | {isDryItem.Title}  |
+| {totalItem.Separator}: | {newItem.Separator}: | {updateItem.Separator}: | {skipItem.Separator}: | {removeItem.Separator}: | {isDryItem.Separator}: |
+| {totalItem.Value}  | {newItem.Value}  | {updateItem.Value}  | {skipItem.Value}  | {removeItem.Value}  | {isDryItem.Value}  |";
+        }
 
-            var updateMax = GetMax(nameof(Update), Update);
-            var updateSeparator = new string('-', updateMax);
-            var updateTitle = PaddingTitle(updateMax, nameof(Update));
-            var updateValue = PaddingTitle(updateMax, Update);
+        private class MarkDownTabkeItem
+        {
+            public string Separator { get; set; }
+            public string Title { get; set; }
+            public string Value { get; set; }
 
-            var skipMax = GetMax(nameof(Skip), Skip);
-            var skipSeparator = new string('-', skipMax);
-            var skipTitle = PaddingTitle(skipMax, nameof(Skip));
-            var skipValue = PaddingTitle(skipMax, Skip);
+            public MarkDownTabkeItem(int count, string name)
+            {
+                var max = Math.Max(name.Length, count.ToString().Length);
+                Separator = new string('-', max);
+                Title = PaddingTitle(max, name);
+                Value = PaddingTitle(max, count.ToString());
+            }
 
-            var removeMax = GetMax(nameof(Remove), Remove);
-            var removeSeparator = new string('-', removeMax);
-            var removeTitle = PaddingTitle(removeMax, nameof(Remove));
-            var removeValue = PaddingTitle(removeMax, Remove);
+            public MarkDownTabkeItem(bool state, string name)
+            {
+                var max = Math.Max(name.Length, state.ToString().Length);
+                Separator = new string('-', max);
+                Title = PaddingTitle(max, name);
+                Value = PaddingTitle(max, state.ToString());
+            }
 
-            return $@"| {totalTitle}  | {newTitle}  | {updateTitle}  | {skipTitle}  | {removeTitle} |
-| {totalSeparator}: | {newSeparator}: | {updateSeparator}: | {skipSeparator}: | {removeSeparator}:|
-| {totalValue}  | {newValue}  | {updateValue}  | {skipValue}  | {removeValue} |";
+            private int GetMax(string left, int right)
+            {
+                return Math.Max(left.Length, right.ToString().Length);
+            }
+
+            private string PaddingTitle(int max, string text)
+            {
+                return string.Format($"{{0, {max}}}", text);
+            }
         }
     }
 }

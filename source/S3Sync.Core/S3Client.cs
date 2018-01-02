@@ -25,11 +25,12 @@ namespace S3Sync.Core
         public TransferUtilityConfig TransferConfig { get; private set; }
         public TransferUtility Transfer { get; private set; }
         public TransferUtility Transfer2 { get; private set; }
+        private readonly bool dryrun = false;
 
         /// <summary>
         /// IAM Instance Profile Version
         /// </summary>
-        public S3Client()
+        public S3Client(bool isDry)
         {
             S3Config = new AmazonS3Config
             {
@@ -43,13 +44,14 @@ namespace S3Sync.Core
             Client = new AmazonS3Client(S3Config);
             Transfer = new TransferUtility(Client);
             Transfer2 = new TransferUtility(Client, TransferConfig);
+            dryrun = isDry;
         }
 
         /// <summary>
         /// AWS Credential Version
         /// </summary>
         /// <param name="credential"></param>
-        public S3Client(AWSCredentials credential)
+        public S3Client(AWSCredentials credential, bool isDry)
         {
             S3Config = new AmazonS3Config
             {
@@ -63,6 +65,7 @@ namespace S3Sync.Core
             Client = new AmazonS3Client(credential, S3Config);
             Transfer = new TransferUtility(Client);
             Transfer2 = new TransferUtility(Client, TransferConfig);
+            dryrun = isDry;
         }
 
         // Sync
@@ -78,8 +81,8 @@ namespace S3Sync.Core
         {
             TimeSpan diffBeforeSyncS3;
             TimeSpan diffBeforeSyncLocal;
-            TimeSpan upload;
-            TimeSpan delete;
+            TimeSpan upload = TimeSpan.Zero;
+            TimeSpan delete = TimeSpan.Zero;
             TimeSpan total;
             var sw = Stopwatch.StartNew();
 
@@ -118,23 +121,32 @@ namespace S3Sync.Core
                     New = newFiles.Length,
                     Update = updateFiles.Length,
                     Remove = removeFiles.Length,
+                    DryRun = dryrun,
                 };
 
-                // Upload local files to s3 for diff files
-                LogTitle($"Start : Upload to S3. New = {newFiles.Length}, Update = {updateFiles.Length})");
-                await RetryableFileUploadAsync(bucketName, prefix, uploadCallback, exponentialBackoff, newFiles, updateFiles);
-                upload = sw.Elapsed;
-                Log($"Complete : Upload to S3. {upload.TotalSeconds.ToRound(2)}sec");
-                sw.Restart();
-
-                // Remove s3 items for diff item
-                LogTitle($"Start : Delete on S3. ({removeFiles.Length} items)");
-                if (removeFiles.Any())
+                if (dryrun)
                 {
-                    await RetrybleFileDeleteAsync(bucketName, exponentialBackoff, removeFiles);
+                    // Dry run only lease message
+                    LogTitle($"Skip : Dryrun is enabled. Skip Synchronize with S3. New = {newFiles.Length}, Update = {updateFiles.Length}, Remove = {removeFiles.Length}");
                 }
-                delete = sw.Elapsed;
-                Log($"Complete : Delete on S3. {delete.TotalSeconds.ToRound(2)}sec");
+                else
+                {
+                    // Upload local files to s3 for diff files
+                    LogTitle($"Start : Upload to S3. New = {newFiles.Length}, Update = {updateFiles.Length})");
+                    await RetryableFileUploadAsync(bucketName, prefix, uploadCallback, exponentialBackoff, newFiles, updateFiles);
+                    upload = sw.Elapsed;
+                    Log($"Complete : Upload to S3. {upload.TotalSeconds.ToRound(2)}sec");
+                    sw.Restart();
+
+                    // Remove s3 items for diff item
+                    LogTitle($"Start : Remove item on S3. Remove = {removeFiles.Length}");
+                    if (removeFiles.Any())
+                    {
+                        await RetrybleFileDeleteAsync(bucketName, exponentialBackoff, removeFiles);
+                    }
+                    delete = sw.Elapsed;
+                    Log($"Complete : Remote item on S3. {delete.TotalSeconds.ToRound(2)}sec");
+                }
 
                 // Obtain sync result
                 total = diffBeforeSyncS3 + diffBeforeSyncLocal + upload + delete;
@@ -144,8 +156,8 @@ Detail Execution Time :
 -----------------------------------------------
 Obtain S3 Items : {diffBeforeSyncS3.TotalSeconds.ToRound(2)}sec
 Calculate Diff  : {diffBeforeSyncLocal.TotalSeconds.ToRound(2)}sec
-Upload to S3    : {upload.TotalSeconds.ToRound(2)}sec
-Delete on S3    : {delete.TotalSeconds.ToRound(2)}sec
+Upload to S3    : {upload.TotalSeconds.ToRound(2)}sec {(dryrun ? "(dry-run. skipped)" : "")}
+Delete on S3    : {delete.TotalSeconds.ToRound(2)}sec {(dryrun ? "(dry-run. skipped)" : "")}
 -----------------------------------------------
 Total Execution : {total.TotalSeconds.ToRound(2)}sec, ({total.TotalMinutes.ToRound(2)}min)
 ===============================================");
@@ -258,12 +270,12 @@ Total Execution : {total.TotalSeconds.ToRound(2)}sec, ({total.TotalMinutes.ToRou
                                 }
 
                                 // Request reejected because "Too many Request"? Wait for Exponential Backoff.
-                                // Sample Error : 
+                                // Sample Error :
                                 // (Status Code : 502) Unhandled Exception: Amazon.S3.AmazonS3Exception: Please reduce your request rate. --->Amazon.Runtime.Internal.HttpErrorResponseException: Exception of type 'Amazon.Runtime.Internal.HttpErrorResponseException' was thrown.
                                 var waitTime = exponentialBackoff.GetNextDelay();
                                 Warn($"Warning : Exception happen during upload, re-queue to last then wait {waitTime.TotalSeconds}sec for next retry. Exception count in Queue List ({currentRetry}/{retryLimit}). {ex.GetType().FullName}, {ex.Message}, {ex.StackTrace}");
 
-                                // Adjust next retry timing : wait for exponential Backoff 
+                                // Adjust next retry timing : wait for exponential Backoff
                                 await Task.Delay(waitTime);
 
                                 // increment retry count
@@ -381,7 +393,7 @@ Total Execution : {total.TotalSeconds.ToRound(2)}sec, ({total.TotalMinutes.ToRou
                                 var waitTime = exponentialBackoff.GetNextDelay();
                                 Warn($"Warning : Exception happen during delete, re-queue to last then wait {waitTime.TotalSeconds}sec for next retry. Exception count in Queue List ({currentRetry}/{retryLimit}). {ex.GetType().FullName}, {ex.Message}, {ex.StackTrace}");
 
-                                // Adjust next retry timing : wait for exponential Backoff 
+                                // Adjust next retry timing : wait for exponential Backoff
                                 await Task.Delay(waitTime);
 
                                 // increment retry count

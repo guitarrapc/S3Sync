@@ -12,7 +12,7 @@ namespace S3Sync.Core
         public int Update { get; set; }
         public int Skip { get; set; }
         public int Remove { get; set; }
-        public bool IsDry { get; set; }
+        public bool DryRun { get; set; }
 
         /// <summary>
         /// Markdown Friendly Table format
@@ -25,7 +25,7 @@ namespace S3Sync.Core
             var updateItem = new MarkDownTabkeItem(Update, nameof(Update));
             var skipItem = new MarkDownTabkeItem(Skip, nameof(Skip));
             var removeItem = new MarkDownTabkeItem(Remove, nameof(Remove));
-            var isDryItem = new MarkDownTabkeItem(IsDry, nameof(IsDry));
+            var isDryItem = new MarkDownTabkeItem(DryRun, nameof(DryRun));
 
             return $@"| {totalItem.Title}  | {newItem.Title}  | {updateItem.Title}  | {skipItem.Title}  | {removeItem.Title}  | {isDryItem.Title}  |
 | {totalItem.Separator}: | {newItem.Separator}: | {updateItem.Separator}: | {skipItem.Separator}: | {removeItem.Separator}: | {isDryItem.Separator}: |

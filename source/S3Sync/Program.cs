@@ -20,6 +20,7 @@ namespace S3Sync
         private static string[] ExcludeDirectories { get; set; }
         private static bool Silent { get; set; }
         private static string CredentialProfile { get; set; }
+        private static bool DryRun { get; set; }
         private static Action<UploadProgressArgs> UploadCallback { get; set; }
 
         private enum ArgumentType
@@ -32,6 +33,7 @@ namespace S3Sync
             ExcludeDirectories,
             Silent,
             CredentialProfile,
+            DryRun,
         }
 
         private enum EnvType
@@ -44,6 +46,7 @@ namespace S3Sync
             S3Sync_ExcludeDirectories,
             S3Sync_Silent,
             S3Sync_CredentialProfile,
+            S3Sync_DryRun,
         }
 
         /// <summary>
@@ -102,8 +105,8 @@ namespace S3Sync
             // Found CredentialProfile : Use as ProfileName
             LogTitle("Start : Obtain credential");
             var s3 = string.IsNullOrEmpty(CredentialProfile)
-                ? new S3Client()
-                : new S3Client(AmazonCredential.GetCredential(CredentialProfile));
+                ? new S3Client(DryRun)
+                : new S3Client(AmazonCredential.GetCredential(CredentialProfile), DryRun);
 
             // Begin Synchronization
             LogTitle("Start : Synchronization");
@@ -191,6 +194,15 @@ namespace S3Sync
                 ?.Trim()
                 ?? GetEnvValueString(ArgumentType.CredentialProfile, EnvType.S3Sync_CredentialProfile);
 
+            // DryRun=true
+            DryRun = bool.Parse(args.Where(x => x.StartsWith(ArgumentType.DryRun.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                .SelectMany(x => x.SplitEx("="))
+                .Where(x => string.Equals(x, "true", StringComparison.InvariantCultureIgnoreCase) || string.Equals(x, "false", StringComparison.InvariantCultureIgnoreCase))
+                .LastOrDefault()
+                ?.Trim()
+                ?? GetEnvValueString(ArgumentType.DryRun, EnvType.S3Sync_DryRun)
+                    ?? "true");
+
             // Show Arguments
             Log($"{nameof(BucketName)} : {BucketName}");
             Log($"{nameof(LocalRoot)} : {LocalRoot}");
@@ -200,6 +212,7 @@ namespace S3Sync
             Log($"{nameof(ExcludeDirectories)} : {ExcludeDirectories?.ToJoinedString(",")}");
             Log($"{nameof(Silent)} : {Silent}");
             Log($"{nameof(CredentialProfile)} : {CredentialProfile}");
+            Log($"{nameof(DryRun)} : {DryRun}");
 
             // Validate Required arguments
             if (string.IsNullOrWhiteSpace(BucketName))

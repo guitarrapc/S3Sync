@@ -6,7 +6,7 @@ S3Sync synchronize a directory to a S3 Bucket. It meakes bucket identical to the
 
 Note: Remote files that are not in the `LocalRoot` are removed.
 
-## How to use.
+## How to use
 
 You can download latest version from [Release](https://github.com/guitarrapc/S3Sync/releases) Page.
 
@@ -30,6 +30,7 @@ ExcludeFiles=`"string","string"` | S3Sync_ExcludeFiles | Optional | Specify loca
 ExcludeDirectories=`"string","string"` | S3Sync_ExcludeDirectories | Optional | Specify local directory names you want to exclude. (use `,` for multiple.)
 CredentialProfile=`"string"` | S3Sync_CredentialProfile | Optional | Specify Credential Profile name.
 Silent=`bool` | S3Sync_Silent | Optional | Set `true` when you want to supress upload progress. (Default : `false`)
+DryRun=`bool` | S3Sync_DryRun | Optional | Set `true` will not change s3 but see estimate plan.<br/>Set `false` to execute synchronization. (Default : `true`)
 
 ## Sample
 
@@ -42,7 +43,7 @@ $ dotnet S3Sync.dll BucketName=your-awesome-bucket LocalRoot=/Home/User/HogeMoge
 No .NETCore? You can use Full.NET as a ConsoleApp.
 
 ```cmd
-S3Sync.exe BucketName=your-fantastic-bucket KeyPrefix=hoge LocalRoot=C:/Users/User/HomeMoge
+S3Sync.exe BucketName=your-fantastic-bucket KeyPrefix=hoge LocalRoot=C:/Users/User/HomeMoge DryRun=false
 ```
 
 ## Docker Support
@@ -52,13 +53,13 @@ You can run with docker.
 Run with IAM Role is recommended.
 
 ```bash
-docker run --rm -v <YOUR_SYNC_DIR>:/app/sync/ -e S3Sync_BucketName=<YOUR_BUCKET_NAME> guitarrapc/s3sync
+docker run --rm -v <YOUR_SYNC_DIR>:/app/sync/ -e S3Sync_BucketName=<YOUR_BUCKET_NAME> S3Sync_DryRun=false guitarrapc/s3sync
 ```
 
 Local run without IAM Role, use AWS Credentials.
 
 ```bash
-$ docker run --rm -v <YOUR_SYNC_DIR>:/app/sync/ -e S3Sync_BucketName=<YOUR_BUCKET_NAME> -e AWS_ACCESS_KEY_ID=<YOUR_ACCESS_KEY> -e AWS_SECRET_ACCESS_KEY=<YOUR_SECRET> guitarrapc/s3sync
+$ docker run --rm -v <YOUR_SYNC_DIR>:/app/sync/ -e S3Sync_BucketName=<YOUR_BUCKET_NAME> -e AWS_ACCESS_KEY_ID=<YOUR_ACCESS_KEY> -e AWS_SECRET_ACCESS_KEY=<YOUR_SECRET> S3Sync_DryRun=false guitarrapc/s3sync
 ```
 
 ### Build s3sync within docker

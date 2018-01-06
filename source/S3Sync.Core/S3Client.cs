@@ -613,11 +613,11 @@ Total Execution : {total.TotalSeconds.ToRound(2)}sec, ({total.TotalMinutes.ToRou
             if (localFiles == null) throw new ArgumentNullException(nameof(localFiles));
             if (s3Objects == null) throw new ArgumentNullException(nameof(s3Objects));
 
-            // Dictionary 作っておく
+            // Dictionary for Remote S3 and Local File
             var s3Dictionary = s3Objects.ToDictionary(x => x.Key, x => x);
             var localDictionary = localFiles.ToDictionary(x => GetS3Key(prefix, x.MultiplatformRelativePath), x => x);
 
-            // Localにあるファイルの状態取得
+            // Get State for Local files
             S3FileHashStatus[] statuses = null;
             var localExists = localDictionary.Select(x =>
             {
@@ -635,13 +635,13 @@ Total Execution : {total.TotalSeconds.ToRound(2)}sec, ({total.TotalMinutes.ToRou
             })
             .ToArray();
 
-            // Remote にしかないファイルの状態取得
+            // Get State for Remote S3
             var remoteOnly = s3Objects
                 .Where(x => !localDictionary.TryGetValue(x.Key, out var slimFileInfo))
                 .Select(x => new S3FileHashStatus(null, "", 0, x))
                 .ToArray();
 
-            // 全部の状態を結合
+            // Concat local and remote
             statuses = localExists.Concat(remoteOnly).ToArray();
 
             return statuses;

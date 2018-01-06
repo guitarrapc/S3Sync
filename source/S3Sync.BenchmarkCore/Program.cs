@@ -62,7 +62,7 @@ namespace S3Sync.BenchmarkCore
         [Config(typeof(BenchmarkConfig))]
         public class ConcurrentBenchmark
         {
-            public S3Client S3 { get; set; } = new S3Client(AmazonCredential.GetCredential(Environment.GetEnvironmentVariable("S3Sync_Bench_CredentialProfile")), true);
+            public S3Client S3 { get; set; } = new S3Client(new S3ClientOption { DryRun = true }, AmazonCredential.GetCredential(Environment.GetEnvironmentVariable("S3Sync_Bench_CredentialProfile")));
             public string BucketName { get; set; } = Environment.GetEnvironmentVariable("S3Sync_Bench_BucketName");
             public string LocalRoot { get; set; } = Environment.GetEnvironmentVariable("S3Sync_Bench_LocalRoot");
 

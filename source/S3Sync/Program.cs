@@ -20,7 +20,7 @@ namespace S3Sync
         private static string[] ExcludeDirectories { get; set; }
         private static bool Silent { get; set; }
         private static string CredentialProfile { get; set; }
-        private static bool DryRun { get; set; }
+        private static S3ClientOption Option { get; set; } = new S3ClientOption();
         private static Action<UploadProgressArgs> UploadCallback { get; set; }
 
         private enum ArgumentType
@@ -50,8 +50,8 @@ namespace S3Sync
         }
 
         /// <summary>
-        /// Sample .NETCore : dotnet S3Sync.dll BucketName=guitarrapc-multipart-test LocalRoot=C:\HogeMogeImages ExcludeFiles=.gitignore,.gitattributes ExcludeDirectories=.git,test
-        /// Sample Full.NET : S3Sync.exe BucketName=guitarrapc-multipart-test KeyPrefix=hoge LocalRoot=C:\HomeMogeImages ExcludeFiles=.gitignore,.gitattributes, ExcludeDirectories=.git,test
+        /// Sample .NETCore : dotnet S3Sync.dll BucketName=guitarrapc-multipart-test LocalRoot=C:\HogeMogeImages ExcludeFiles=.gitignore,.gitattributes ExcludeDirectories=.git,test DryRun=false
+        /// Sample Full.NET : S3Sync.exe BucketName=guitarrapc-multipart-test KeyPrefix=hoge LocalRoot=C:\HomeMogeImages ExcludeFiles=.gitignore,.gitattributes, ExcludeDirectories=.git,test DryRun=false
         /// </summary>
         /// <param name="args"></param>
         static void Main(string[] args)
@@ -105,8 +105,8 @@ namespace S3Sync
             // Found CredentialProfile : Use as ProfileName
             LogTitle("Start : Obtain credential");
             var s3 = string.IsNullOrEmpty(CredentialProfile)
-                ? new S3Client(DryRun)
-                : new S3Client(AmazonCredential.GetCredential(CredentialProfile), DryRun);
+                ? new S3Client(Option)
+                : new S3Client(Option, AmazonCredential.GetCredential(CredentialProfile));
 
             // Begin Synchronization
             LogTitle("Start : Synchronization");
@@ -195,7 +195,7 @@ namespace S3Sync
                 ?? GetEnvValueString(ArgumentType.CredentialProfile, EnvType.S3Sync_CredentialProfile);
 
             // DryRun=true
-            DryRun = bool.Parse(args.Where(x => x.StartsWith(ArgumentType.DryRun.ToString(), StringComparison.InvariantCultureIgnoreCase))
+            Option.DryRun = bool.Parse(args.Where(x => x.StartsWith(ArgumentType.DryRun.ToString(), StringComparison.InvariantCultureIgnoreCase))
                 .SelectMany(x => x.SplitEx("="))
                 .Where(x => string.Equals(x, "true", StringComparison.InvariantCultureIgnoreCase) || string.Equals(x, "false", StringComparison.InvariantCultureIgnoreCase))
                 .LastOrDefault()
@@ -212,7 +212,7 @@ namespace S3Sync
             Log($"{nameof(ExcludeDirectories)} : {ExcludeDirectories?.ToJoinedString(",")}");
             Log($"{nameof(Silent)} : {Silent}");
             Log($"{nameof(CredentialProfile)} : {CredentialProfile}");
-            Log($"{nameof(DryRun)} : {DryRun}");
+            Log($"{nameof(Option.DryRun)} : {Option.DryRun}");
 
             // Validate Required arguments
             if (string.IsNullOrWhiteSpace(BucketName))

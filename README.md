@@ -31,6 +31,7 @@ ExcludeDirectories=`"string","string"` | S3Sync_ExcludeDirectories | Optional | 
 CredentialProfile=`"string"` | S3Sync_CredentialProfile | Optional | Specify Credential Profile name.
 Silent=`bool` | S3Sync_Silent | Optional | Set `true` when you want to supress upload progress. (Default : `false`)
 DryRun=`bool` | S3Sync_DryRun | Optional | Set `true` will not change s3 but see estimate plan.<br/>Set `false` to execute synchronization. (Default : `true`)
+ContentType=`"string"` | S3Sync_ContentType | Optional | Specify ContentType for object. (default `null` and will be `application/octet-stream`
 
 ## Sample
 

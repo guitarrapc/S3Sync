@@ -34,6 +34,7 @@ namespace S3Sync
             Silent,
             CredentialProfile,
             DryRun,
+            ContentType,
         }
 
         private enum EnvType
@@ -47,6 +48,7 @@ namespace S3Sync
             S3Sync_Silent,
             S3Sync_CredentialProfile,
             S3Sync_DryRun,
+            S3Sync_ContentType,
         }
 
         /// <summary>
@@ -203,6 +205,13 @@ namespace S3Sync
                 ?? GetEnvValueString(ArgumentType.DryRun, EnvType.S3Sync_DryRun)
                     ?? "true");
 
+            // ContentType=application/json
+            Option.ContentType = args.Where(x => x.StartsWith(ArgumentType.ContentType.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                .SelectMany(x => x.SplitEx("="))
+                .LastOrDefault()
+                ?.TrimEnd('/')
+                ?? GetEnvValueString(ArgumentType.ContentType, EnvType.S3Sync_ContentType);
+
             // Show Arguments
             Log($"{nameof(BucketName)} : {BucketName}");
             Log($"{nameof(LocalRoot)} : {LocalRoot}");
@@ -213,6 +222,7 @@ namespace S3Sync
             Log($"{nameof(Silent)} : {Silent}");
             Log($"{nameof(CredentialProfile)} : {CredentialProfile}");
             Log($"{nameof(Option.DryRun)} : {Option.DryRun}");
+            Log($"{nameof(Option.ContentType)} : {Option.ContentType}");
 
             // Validate Required arguments
             if (string.IsNullOrWhiteSpace(BucketName))

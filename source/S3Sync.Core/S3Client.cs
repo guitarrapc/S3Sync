@@ -535,6 +535,10 @@ Total Execution : {total.TotalSeconds.ToRound(2)}sec, ({total.TotalMinutes.ToRou
                     PartSize = TransferConfig.MinSizeBeforePartUpload,
                     StorageClass = S3StorageClass.Standard,
                 };
+                if (!string.IsNullOrEmpty(Option.ContentType))
+                {
+                    request.ContentType = Option.ContentType;
+                }
 
                 if (uploadProgressEventAction != null)
                 {
@@ -561,6 +565,10 @@ Total Execution : {total.TotalSeconds.ToRound(2)}sec, ({total.TotalMinutes.ToRou
                     PartSize = TransferConfig.MinSizeBeforePartUpload,
                     StorageClass = S3StorageClass.Standard,
                 };
+                if (!string.IsNullOrEmpty(Option.ContentType))
+                {
+                    request.ContentType = Option.ContentType;
+                }
 
                 if (uploadProgressEventAction != null)
                 {

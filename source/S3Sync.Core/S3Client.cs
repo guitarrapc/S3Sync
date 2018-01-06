@@ -25,12 +25,12 @@ namespace S3Sync.Core
         public TransferUtilityConfig TransferConfig { get; private set; }
         public TransferUtility Transfer { get; private set; }
         public TransferUtility Transfer2 { get; private set; }
-        private readonly bool dryrun = false;
+        public S3ClientOption Option { get; private set; }
 
         /// <summary>
         /// IAM Instance Profile Version
         /// </summary>
-        public S3Client(bool isDry)
+        public S3Client(S3ClientOption option)
         {
             S3Config = new AmazonS3Config
             {
@@ -44,14 +44,14 @@ namespace S3Sync.Core
             Client = new AmazonS3Client(S3Config);
             Transfer = new TransferUtility(Client);
             Transfer2 = new TransferUtility(Client, TransferConfig);
-            dryrun = isDry;
+            Option = option;
         }
 
         /// <summary>
         /// AWS Credential Version
         /// </summary>
         /// <param name="credential"></param>
-        public S3Client(AWSCredentials credential, bool isDry)
+        public S3Client(S3ClientOption option, AWSCredentials credential)
         {
             S3Config = new AmazonS3Config
             {
@@ -65,7 +65,7 @@ namespace S3Sync.Core
             Client = new AmazonS3Client(credential, S3Config);
             Transfer = new TransferUtility(Client);
             Transfer2 = new TransferUtility(Client, TransferConfig);
-            dryrun = isDry;
+            Option = option;
         }
 
         // Sync
@@ -121,10 +121,10 @@ namespace S3Sync.Core
                     New = newFiles.Length,
                     Update = updateFiles.Length,
                     Remove = removeFiles.Length,
-                    DryRun = dryrun,
+                    DryRun = Option.DryRun,
                 };
 
-                if (dryrun)
+                if (Option.DryRun)
                 {
                     // Dry run only lease message
                     LogTitle($"Skip : Dryrun is enabled. Skip Synchronize with S3. New = {newFiles.Length}, Update = {updateFiles.Length}, Remove = {removeFiles.Length}");
@@ -156,8 +156,8 @@ Detail Execution Time :
 -----------------------------------------------
 Obtain S3 Items : {diffBeforeSyncS3.TotalSeconds.ToRound(2)}sec
 Calculate Diff  : {diffBeforeSyncLocal.TotalSeconds.ToRound(2)}sec
-Upload to S3    : {upload.TotalSeconds.ToRound(2)}sec {(dryrun ? "(dry-run. skipped)" : "")}
-Delete on S3    : {delete.TotalSeconds.ToRound(2)}sec {(dryrun ? "(dry-run. skipped)" : "")}
+Upload to S3    : {upload.TotalSeconds.ToRound(2)}sec {(Option.DryRun ? "(dry-run. skipped)" : "")}
+Delete on S3    : {delete.TotalSeconds.ToRound(2)}sec {(Option.DryRun ? "(dry-run. skipped)" : "")}
 -----------------------------------------------
 Total Execution : {total.TotalSeconds.ToRound(2)}sec, ({total.TotalMinutes.ToRound(2)}min)
 ===============================================");
@@ -535,6 +535,10 @@ Total Execution : {total.TotalSeconds.ToRound(2)}sec, ({total.TotalMinutes.ToRou
                     PartSize = TransferConfig.MinSizeBeforePartUpload,
                     StorageClass = S3StorageClass.Standard,
                 };
+                if (!string.IsNullOrEmpty(Option.ContentType))
+                {
+                    request.ContentType = Option.ContentType;
+                }
 
                 if (uploadProgressEventAction != null)
                 {
@@ -561,6 +565,10 @@ Total Execution : {total.TotalSeconds.ToRound(2)}sec, ({total.TotalMinutes.ToRou
                     PartSize = TransferConfig.MinSizeBeforePartUpload,
                     StorageClass = S3StorageClass.Standard,
                 };
+                if (!string.IsNullOrEmpty(Option.ContentType))
+                {
+                    request.ContentType = Option.ContentType;
+                }
 
                 if (uploadProgressEventAction != null)
                 {
@@ -613,11 +621,11 @@ Total Execution : {total.TotalSeconds.ToRound(2)}sec, ({total.TotalMinutes.ToRou
             if (localFiles == null) throw new ArgumentNullException(nameof(localFiles));
             if (s3Objects == null) throw new ArgumentNullException(nameof(s3Objects));
 
-            // Dictionary 作っておく
+            // Dictionary for Remote S3 and Local File
             var s3Dictionary = s3Objects.ToDictionary(x => x.Key, x => x);
             var localDictionary = localFiles.ToDictionary(x => GetS3Key(prefix, x.MultiplatformRelativePath), x => x);
 
-            // Localにあるファイルの状態取得
+            // Get State for Local files
             S3FileHashStatus[] statuses = null;
             var localExists = localDictionary.Select(x =>
             {
@@ -635,13 +643,13 @@ Total Execution : {total.TotalSeconds.ToRound(2)}sec, ({total.TotalMinutes.ToRou
             })
             .ToArray();
 
-            // Remote にしかないファイルの状態取得
+            // Get State for Remote S3
             var remoteOnly = s3Objects
                 .Where(x => !localDictionary.TryGetValue(x.Key, out var slimFileInfo))
                 .Select(x => new S3FileHashStatus(null, "", 0, x))
                 .ToArray();
 
-            // 全部の状態を結合
+            // Concat local and remote
             statuses = localExists.Concat(remoteOnly).ToArray();
 
             return statuses;

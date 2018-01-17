@@ -34,7 +34,9 @@ namespace S3Sync.Core
         {
             S3Config = new AmazonS3Config
             {
-                RegionEndpoint = defaultEndPoint,
+                RegionEndpoint = !string.IsNullOrEmpty(option.Region) 
+                    ? RegionEndpoint.GetBySystemName(option.Region) 
+                    : defaultEndPoint,
             };
             TransferConfig = new TransferUtilityConfig
             {
@@ -55,7 +57,9 @@ namespace S3Sync.Core
         {
             S3Config = new AmazonS3Config
             {
-                RegionEndpoint = defaultEndPoint,
+                RegionEndpoint = !string.IsNullOrEmpty(option.Region)
+                    ? RegionEndpoint.GetBySystemName(option.Region)
+                    : defaultEndPoint,
             };
             TransferConfig = new TransferUtilityConfig
             {

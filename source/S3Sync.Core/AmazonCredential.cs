@@ -29,8 +29,8 @@ namespace S3Sync.Core
     {
         public static AWSCredentials GetCredential(string profileName)
         {
-            var netSDK = new NetSDKCredentialsFile();
-            if (netSDK.TryGetProfile(profileName, out CredentialProfile profile) && AWSCredentialsFactory.TryGetAWSCredentials(profile, netSDK, out AWSCredentials credentials))
+            var chain = new CredentialProfileStoreChain();
+            if (chain.TryGetProfile(profileName, out var profile) && chain.TryGetAWSCredentials(profileName, out var credentials))
             {
                 return credentials;
             }

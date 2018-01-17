@@ -8,5 +8,6 @@ namespace S3Sync.Core
     {
         public bool DryRun { get; set; } = true;
         public string ContentType { get; set; }
+        public string Region { get; set; }
     }
 }

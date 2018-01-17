@@ -35,6 +35,7 @@ namespace S3Sync
             CredentialProfile,
             DryRun,
             ContentType,
+            Region,
         }
 
         private enum EnvType
@@ -49,6 +50,7 @@ namespace S3Sync
             S3Sync_CredentialProfile,
             S3Sync_DryRun,
             S3Sync_ContentType,
+            S3Sync_Region,
         }
 
         /// <summary>
@@ -212,6 +214,13 @@ namespace S3Sync
                 ?.TrimEnd('/')
                 ?? GetEnvValueString(ArgumentType.ContentType, EnvType.S3Sync_ContentType);
 
+            // Region=us-east-1
+            Option.Region = args.Where(x => x.StartsWith(ArgumentType.Region.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                .SelectMany(x => x.SplitEx("="))
+                .LastOrDefault()
+                ?.TrimEnd('/')
+                ?? GetEnvValueString(ArgumentType.Region, EnvType.S3Sync_Region);
+
             // Show Arguments
             Log($"{nameof(BucketName)} : {BucketName}");
             Log($"{nameof(LocalRoot)} : {LocalRoot}");
@@ -223,6 +232,7 @@ namespace S3Sync
             Log($"{nameof(CredentialProfile)} : {CredentialProfile}");
             Log($"{nameof(Option.DryRun)} : {Option.DryRun}");
             Log($"{nameof(Option.ContentType)} : {Option.ContentType}");
+            Log($"{nameof(Option.Region)} : {Option.Region}");
 
             // Validate Required arguments
             if (string.IsNullOrWhiteSpace(BucketName))

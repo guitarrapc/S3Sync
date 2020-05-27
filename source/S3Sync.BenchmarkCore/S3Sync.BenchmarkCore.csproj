@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AWSSDK.Core" Version="3.3.106.25" />
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
-    <PackageReference Include="AWSSDK.S3" Version="3.3.111.2" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.111.4" />
     <PackageReference Include="BenchmarkDotNet.Core" Version="0.10.14" />
   </ItemGroup>
 

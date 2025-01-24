@@ -1,3 +1,5 @@
+This project seems not useful on 2025. Archived.
+
 # S3Sync
 
 Amazon S3 Content Synchronization with .NET.
